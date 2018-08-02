@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+
+<!--
+  Задание, программа минимум:
+Создать HTML-страничку/в онлайн-редакторе и подключить Vue с CDN
+Создать корневой экземпляр и убедиться что данные из него выводятся на странице
+В данных реализовать хранение списка пользователей (пять хватит; у каждого пользователя предусмотреть хранение имени, фамилии, 
+отчества и ссылки на картинку аватарки)
+Показать на странице список пользователей в виде таблицы
+Для пользователей без аватарки выводить сообщение/показывать аватарку по умолчанию
+Добавить заголовок к таблице с указанием общего количества пользователей
+Добавить кнопку для скрытия/отображения всего списка пользователей
+
+Задание, если захочется большего:
+Подсчитывать количество пользователей не через метод, а через вычисляемое свойство
+Создать фильтр чтобы выводить в таблице данные пользователя в верхнем регистре
+Использовать директиву v-copy для кнопок копирования ФИО каждого пользователя
+Использовать директиву v-tooltip, чтобы выводить справку для кнопки показать/скрыть список
+-->
+
+<html>
+
+  
+  <head>
+    <meta charset="utf-8"/>
+    <script src="web/lib/vue.js"></script>
+    <link href='web/css/style.css' rel='stylesheet' type='text/css' >
+  </head>
+  <body>
+      <div id="app">
+        <table>
+          <thead>
+            <tr>
+                <h3>Users count: {{ usersCount }} </h3>
+                <button  class="button" data-toggle="tooltip" data-placement="top" v-bind:title="btnTooltip" v-on:click = "changeTableVisibility">
+                  {{ changeTableVisibilityBtnName }} 
+                </button>
+            </tr>
+            <tr v-if="show">
+              <th v-for="(item) in usersListTableColumns">
+                {{ item | capitalize }}
+              </th>
+            </tr>
+          </thead>
+          <!--Straightforward solution without any smart solution to render the table with unknow number of cols-->
+          <tbody v-if="show">
+            <tr v-for="item in usersList">
+              <td> {{ item.name | capitalize }} </td>
+              <td> {{ item.surname | capitalize }} </td>
+              <td> {{ item.patronymicName | capitalize }} </td>
+              <td> 
+                <img v-if="item.img" v-bind:src="item.img" height="60">
+                <img v-else src="https://vignette.wikia.nocookie.net/dragcave/images/6/6e/No_avatar.jpg/revision/latest?cb=20140427211725" height="60">       
+              </td> 
+            </tr>
+          </tbody> 
+        </table>
+
+      </div>
+      <script src="script.js"></script>
+  </body>
+
+  </html>
