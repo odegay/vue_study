@@ -23,26 +23,24 @@
   
   <head>
     <meta charset="utf-8"/>
-    <script src="web/lib/vue.js"></script>
-    <link href='web/css/style.css' rel='stylesheet' type='text/css' >
+    <script type="text/javascript" src="web/lib/vue.js"></script>
+    <link type="text/css" rel="stylesheet" href="web/css/style.css"  >
   </head>
   <body>
       <div id="app">
-        <table>
+        <h3>Users count: {{ usersCount }} </h3>
+        <button  type="button" class="button" data-toggle="tooltip" data-placement="top" v-bind:title="btnTooltip" v-on:click = "changeTableVisibility">
+          {{ changeTableVisibilityBtnTxt }}           
+        </button>
+        <table v-if="show">
           <thead>
             <tr>
-                <h3>Users count: {{ usersCount }} </h3>
-                <button  class="button" data-toggle="tooltip" data-placement="top" v-bind:title="btnTooltip" v-on:click = "changeTableVisibility">
-                  {{ changeTableVisibilityBtnName }} 
-                </button>
-            </tr>
-            <tr v-if="show">
-              <th v-for="(item) in usersListTableColumns">
+              <th v-for="item in usersListTableColumns">
                 {{ item | capitalize }}
               </th>
             </tr>
           </thead>
-          <!--Straightforward solution without any smart solution to render the table with unknow number of cols-->
+          <!--Straightforward solution without any smart idea to render the table with unknow number of cols-->
           <tbody v-if="show">
             <tr v-for="item in usersList">
               <td> {{ item.name | capitalize }} </td>
@@ -52,6 +50,11 @@
                 <img v-if="item.img" v-bind:src="item.img" height="60">
                 <img v-else src="https://vignette.wikia.nocookie.net/dragcave/images/6/6e/No_avatar.jpg/revision/latest?cb=20140427211725" height="60">       
               </td> 
+              <td>
+                <button tyoe="button" class="button" v-bind:title="btnCopyFullNameToolTip" v-on:click = "">
+                  <img src="web/img/copy.png" height="30"/>
+                </button>
+              </td>
             </tr>
           </tbody> 
         </table>
