@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+
+<!--
+Задание, программа минимум:
+++ Создать репозиторий (GitHub, BitBucket, etc) для проекта
+++ Подключить для стилизации Bootstrap (по желанию, просто для стилизации)
+++ Создать файлы под страницы списка пользователей и редактирования пользователя
+++ Отслеживать момент «загрузки» данных и выводить об этом сообщение в консоль
+На странице списка пользователей хранить массив, использовать компонент для отображения списка, 
+который выводит их в виде таблицы (в иерархии компонентов внутри Root → UserList)
+На странице редактирования пользователя хранить объект с данными пользователя, 
+использовать компонент для отображения «формы» с данными пользователя для редактирования свойств (в иерархии компонентов внутри Root → UserForm)
+
+Задание, если захочется большего:
+Сгенерировать JSON-файл с фейковыми данными пользователей
+Установить json-server и настроить на выдачу этого JSON-файла
+Реализовать загрузку списка пользователей
+Реализовать загрузку пользователя для редактирования
+Переход на страницу редактирования пользователя с ID-пользователя в query и загрузка данных нужного пользователя 
+(можно с помощью плагина vue-async-computed)
+Реализовать псевдо-SPA и на одной странице динамическим переключением компонентов реализовать переходы по ссылкам из меню
+
+Материалы для самостоятельного изучения:
+Вычисляемые свойства и методы наблюдатели (https://ru.vuejs.org/v2/guide/computed.html)
+Варианты записи watch (https://ru.vuejs.org/v2/api/#watch)
+Динамическое добавление watch (https://ru.vuejs.org/v2/api/#vm-watch)
+Тонкости отслеживания изменений в массивах (https://ru.vuejs.org/v2/guide/list.html#Отслеживание-изменений-в-массивах)
+Тонкости отслеживания изменений при изменениях объектов (https://ru.vuejs.org/v2/guide/list.html#Предостережения-об-изменениях-объектов)
+События и модификаторы событий (https://ru.vuejs.org/v2/guide/events.html)
+Перечень способов отслеживания событий, варианты записи (https://ru.vuejs.org/v2/api/#v-on)
+Как создавать собственные псевдонимы для кодов клавиш (https://ru.vuejs.org/v2/api/#keyCodes)
+Работа с формами, доступные модификаторы (https://ru.vuejs.org/v2/guide/forms.html)
+Основы компонентов (https://ru.vuejs.org/v2/guide/components.html)
+Регистрация компонентов (https://ru.vuejs.org/v2/guide/components-registration.html)
+Входные параметры компонентов (https://ru.vuejs.org/v2/guide/components-props.html)
+Пользовательские события (https://ru.vuejs.org/v2/guide/components-custom-events.html)
+
+Ссылки по теме:
+Генератор фейковых данных (https://next.json-generator.com/)
+Шаблон генерации пользователей (https://pastebin.com/96BQ10wF)
+JSON-server (https://github.com/typicode/json-server)
+Используем axios для доступа к API (https://ru.vuejs.org/v2/cookbook/using-axios-to-consume-apis.html)
+
+Что почитать ещё:
+Плагин для вычисляемых свойств с асинхронной логикой (https://github.com/foxbenjaminfox/vue-async-computed)
+Плагин для альтернативной записи типов входных параметров (https://github.com/dwightjack/vue-types)
+Примеры решения часто встречающихся проблем (https://medium.com/@stijlbreuk/six-random-issues-and-their-solutions-in-vuejs-b16d470a6462)
+Подборка допускаемых ошибок (https://itnext.io/how-not-to-vue-18f16fe620b5)
+Вещи, которые не работают во Vue (https://winnercrespo.com/things-that-wont-work-using-vue/)
+
+Код реализованный на занятии:
+Пример с computed/watch: https://plnkr.co/edit/hzb6SX415L0XRN9jqxso?p=preview
+Пример с событиями и формами: https://plnkr.co/edit/6DjaLHAy0vuFIcfw6aXI?p=preview
+Пример с компонентом: https://plnkr.co/edit/pgVKotq3BJz8FE3EuLGx?p=preview
+-->
+
+<html lang="en">  
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script type="text/javascript" src="web/lib/vue.js"></script>
+    <script type="text/javascript" src="web/lib/v-copy.js"></script>    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">  </head>
+  <body>
+      <div id="app" v-on:load="fillUsers">
+        <h3>Users count: {{ usersCount }} </h3>
+        <button type="button" class="btn btn-primary" v-on:click="fillUsers">
+            Load users
+        </button>
+        <button  type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" v-bind:title="btnTooltip" v-on:click = "changeTableVisibility">
+          {{ changeTableVisibilityBtnTxt }}           
+        </button>
+        <users-list v-if="show" v-bind:list="usersList"></users-list>
+      </div>
+
+      <script id = "users-component">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th v-for="item in usersListTableColumns">
+                {{ item | capitalize }}
+              </th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in list" :key="item.name + item.surname + item.patronymicName">
+              <td> {{ item.name | capitalize }} </td>
+              <td> {{ item.surname | capitalize }} </td>
+              <td> {{ item.patronymicName | capitalize }} </td>
+              <td> 
+                <img v-if="item.img" v-bind:src="item.img" height="60">
+                <img v-else src="https://vignette.wikia.nocookie.net/dragcave/images/6/6e/No_avatar.jpg/revision/latest?cb=20140427211725" height="60">       
+              </td> 
+              <td>
+                <button tyoe="button" class="button" v-bind:title="btnCopyFullNameToolTip" v-on:click = "">
+                  <img src="web/img/copy.png" height="30"/>
+                </button>
+              </td>
+            </tr>
+          </tbody> 
+        </table>        
+      </script>
+
+      <script src="web/lib/script.js"></script>
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+  </html>
